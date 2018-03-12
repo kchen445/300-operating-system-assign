@@ -6,14 +6,15 @@
 #define INC_300ASSIGNMENT3_REPORT_H
 
 #include <stdbool.h>
+#include "Semaphore.h"
 
 typedef struct REPORT{
     int successFailure;
-    char actionIsTaken[];
+    char actionIsTaken[100];
 
     bool isSendOrReceive;
-    char msgSource[];
-    char msg[];
+    char msgSource[100];
+    char msg[100];
 
     bool returnsPID;
     int pid;
