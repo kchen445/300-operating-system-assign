@@ -10,13 +10,12 @@
 
 typedef struct REPORT{
     int successFailure;
-    char actionIsTaken[100];
 
-    bool isSendOrReceive;
-    char msgSource[100];
-    char msg[100];
+    char* actionTaken;
 
-    bool returnsPID;
+    int msgSource;
+    char* msg;
+
     int pid;
 
 } REPORT;

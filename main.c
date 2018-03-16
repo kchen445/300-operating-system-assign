@@ -2,14 +2,25 @@
 #include <stdlib.h>
 #include "OSCommands.h"
 
-const int INIT_PROCESS = -1;
-LIST* readyQueue;
+PROCESS INIT_PROCESS;
+LIST* readyQueueHighPriority;
+LIST* readyQueueMedPriority;
+LIST* readyQueueLowPriority;
 LIST* blockedQueue;
-int runningProcess;
+PROCESS runningProcess;
 
 int main() {
-    readyQueue = ListCreate();
+    readyQueueHighPriority = ListCreate();
+    readyQueueMedPriority = ListCreate();
+    readyQueueLowPriority = ListCreate();
     blockedQueue = ListCreate();
+
+    INIT_PROCESS.id = -1;
+    INIT_PROCESS.priority = 0;
+
     runningProcess = INIT_PROCESS;
+
+
+
     Exit();
 }

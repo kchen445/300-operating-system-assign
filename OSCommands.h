@@ -5,16 +5,21 @@
 #define INC_300ASSIGNMENT3_OSCOMMANDS_H
 #include "Report.h"
 #include "list.h"
+#include "process.h"
+#include <string.h>
 
-extern const int INIT_PROCESS;
-extern int runningProcess;
-extern LIST* readyQueue;
+
+extern PROCESS INIT_PROCESS;
+extern PROCESS runningProcess;
+extern LIST* readyQueueHighPriority;
+extern LIST* readyQueueMedPriority;
+extern LIST* readyQueueLowPriority;
 extern LIST* blockedQueue;
 
 REPORT Create(int priority);
 REPORT Fork();
 REPORT Kill(int pid);
-void Exit();
+REPORT Exit();
 REPORT Quantum();
 REPORT Send(int pid, char msg[]);
 REPORT Receive();
