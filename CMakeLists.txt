@@ -14,4 +14,4 @@ add_executable(300assignment3
         OSCommands.c
         OSCommands.h
         Report.h
-        Semaphore.h Process.h)
+        Semaphore.h Process.h SharedData.h)

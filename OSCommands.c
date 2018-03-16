@@ -3,12 +3,11 @@
 //
 #include <stdlib.h>
 #include "OSCommands.h"
-#include "list.h"
 
-static int currentFreeID = 0;
-char* queueTextArray[3] = {" High Priority Queue"," Medium Priority Queue"," Low Priority Queue"};
+
+char* queueTextArray[] = {" High Priority Queue"," Medium Priority Queue"," Low Priority Queue"};
 const int NUM_READY_QUEUES = 3;
-const int NUM_QUEUES = 4;
+const int NUM_QUEUES = 5;
 
 //START OF HELPER FUNCTIONS
 bool canTerminateInit(){
@@ -16,7 +15,7 @@ bool canTerminateInit(){
         return false;
     }
 
-    LIST* listArray[] = {readyQueueLowPriority, readyQueueHighPriority, readyQueueMedPriority, blockedQueue};
+    LIST* listArray[] = {readyQueueLowPriority, readyQueueHighPriority, readyQueueMedPriority, blockedSendQueue};
     for(int i = 0; i < 4; i++){
         if(ListCount(listArray[i]) != 0){
             return false;
@@ -32,9 +31,9 @@ void terminateSimulation(){
 }
 
 int idComparator(void* item, void* pid){
-    int* listPid = (int*)item;
+    int listPid = ((PROCESS*)item)->id;
     int* searchingPid = (int*)pid;
-    return *listPid == *searchingPid;
+    return listPid == *searchingPid;
 }
 
 char* returnMallocedChar(char placeholder[]){
@@ -53,6 +52,17 @@ REPORT failToTerminateInit(){
     return report;
 }
 
+PROCESS* findNextRunningProcess(){
+    LIST* listArray[] = {readyQueueHighPriority, readyQueueMedPriority, readyQueueLowPriority};
+    PROCESS* newProcess = NULL;
+    for(int i = 0; i < NUM_READY_QUEUES; i++){
+        if(ListCount(listArray[i]) != 0){
+            newProcess = ListTrim(listArray[i]);
+        }
+    }
+    return newProcess;
+}
+
 //END OF HELPER FUNCTIONS
 
 REPORT Create(int priority){
@@ -65,9 +75,9 @@ REPORT Create(int priority){
 
     int result;
 
-    if(runningProcess.id == INIT_PROCESS.id){
+    if(runningProcess->id == INIT_PROCESS.id){
         result = true;
-        runningProcess = *process;
+        runningProcess = process;
     }else{
         result = ListPrepend(listArray[priority],process);
     }
@@ -76,30 +86,31 @@ REPORT Create(int priority){
 
     if(!result){
         report.successFailure = false;
-        report.pid = process->id;
+        currentFreeID--;
         //char failure[] = "Failed to create process with given priority.\0";
-        report.actionTaken = "Failed to create process with given priority.\0";
+        //report.actionTaken = "Failed to create process with given priority.\0";
         return report;
     }else{
         report.successFailure = true;
+        report.pid = process->id;
     }
 
-    char success[] = "Success. New process is created with id ";
-    char pidChar[30];
-    itoa(process->id,pidChar,10);
-    strcat(success,pidChar);
-    memcpy(report.actionTaken,success,strlen(success));
+    //char success[] = "Success. New process is created with id ";
+    //char pidChar[30];
+    //itoa(process->id,pidChar,10);
+    //strcat(success,pidChar);
+    //memcpy(report.actionTaken,success,strlen(success));
     return report;
 }
 
 REPORT Fork(){
-    if(runningProcess.id == INIT_PROCESS.id){
+    if(runningProcess->id == INIT_PROCESS.id){
         REPORT report;
         report.successFailure = false;
         return report;
     }
 
-    REPORT report = Create(runningProcess.priority);
+    REPORT report = Create(runningProcess->priority);
     return report;
 }
 
@@ -113,7 +124,7 @@ REPORT Kill(int pid){
         return report;
     }
 
-    if(pid == runningProcess.id){
+    if(pid == runningProcess->id){
         REPORT report = Exit();
         return report;
     }
@@ -122,7 +133,7 @@ REPORT Kill(int pid){
 
     int* pidPointer;
     pidPointer = &pid;
-    LIST* listArray[] = {readyQueueHighPriority, readyQueueMedPriority, readyQueueLowPriority, blockedQueue};
+    LIST* listArray[] = {readyQueueHighPriority, readyQueueMedPriority, readyQueueLowPriority, blockedSendQueue, blockedReceiveQueue};
     bool found = false;
 
     for(int i = 0; i < NUM_QUEUES; i++){
@@ -141,24 +152,41 @@ REPORT Kill(int pid){
     if(!found){
         report.successFailure = false;
         //char failure[] = "Failed to create process with given priority.\0";
-        report.actionTaken = "Unable to kill given process.\0";
+        //report.actionTaken = "Unable to kill given process.\0";
         return report;
     }else{
         free(ListRemove(listArray[queueWithElement]));
         report.successFailure = true;
         //char failure[] = "Failed to create process with given priority.\0";
-        report.actionTaken = "Unable to kill given process.\0";
+        //report.actionTaken = "Process is killed.\0";
         return report;
     }
 
 }
 
 REPORT Exit(){
-    LIST* listArray[4] = {readyQueueHighPriority, readyQueueMedPriority, readyQueueLowPriority, blockedQueue};
 
-    if(runningProcess.id == INIT_PROCESS.id){
-        exit(-1);
+    LIST* listArray[3] = {readyQueueHighPriority, readyQueueMedPriority, readyQueueLowPriority};
+
+    if(runningProcess->id == INIT_PROCESS.id){
+        if(canTerminateInit()){
+            terminateSimulation();
+        }
+
+        REPORT report = failToTerminateInit();
+        return report;
     }
+
+    PROCESS* newProcess = findNextRunningProcess();
+
+    if(newProcess == NULL){
+        REPORT report;
+        report.successFailure = false;
+        return report;
+    }
+
+    free(runningProcess);
+    runningProcess = newProcess;
 }
 
 REPORT Quantum(){
