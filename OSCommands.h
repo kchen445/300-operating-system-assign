@@ -3,22 +3,23 @@
 //
 #ifndef INC_300ASSIGNMENT3_OSCOMMANDS_H
 #define INC_300ASSIGNMENT3_OSCOMMANDS_H
-#include "Report.h"
 #include "SharedData.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
 
-REPORT Create(int priority);
-REPORT Fork();
-REPORT Kill(int pid);
-REPORT Exit();
-REPORT Quantum();
-REPORT Send(int pid, char msg[]);
-REPORT Receive();
-REPORT Reply(int pid, char msg[]);
-REPORT NewSemaphore(int semID, int initialValue);
-REPORT SemaphoreP(int semID);
-REPORT SemaphoreV(int semID);
-REPORT Procinfo(int pid);
-REPORT Totalinfo();
+void Create(int priority);
+void Fork();
+void Kill(int pid);
+void Exit();
+void Quantum();
+void Send(int pid, char msg[]);
+void Receive();
+void Reply(int pid, char msg[]);
+void NewSemaphore(int semID, int initialValue);
+void SemaphoreP(int semID);
+void SemaphoreV(int semID);
+void Procinfo(int pid);
+void Totalinfo();
 
 #endif //INC_300ASSIGNMENT3_OSCOMMANDS_H

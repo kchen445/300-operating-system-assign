@@ -130,6 +130,8 @@ void* ListFirst(LIST* list){
 
     list->current = list->first;
     list->currentItem = list->current->item;
+    list->currentIsAheadOfLast = false;
+    list->currentIsBehindFirst = false;
     return list->currentItem;
 }
 
@@ -140,6 +142,8 @@ void* ListLast(LIST* list){
 
     list->current = list->last;
     list->currentItem = list->current->item;
+    list->currentIsAheadOfLast = false;
+    list->currentIsBehindFirst = false;
     return list->currentItem;
 }
 
@@ -302,13 +306,7 @@ void* ListRemove(LIST* list){
 	}
 
 	if(list->itemCount == 1){
-        list->first = NULL;
-        list->last = NULL;
-        void* item = list->current->item;
-        freeNode(list->current);
-        list->current = NULL;
-        list->itemCount--;
-        return item;
+        return ListTrim(list);
     }
 
     if(list->current == list->last){
@@ -383,8 +381,16 @@ void ListFree(LIST* list, void (*itemFree)(void*)){
 }
 
 void* ListTrim(LIST* list){
+
     if(list->itemCount == 1){
-        return ListRemove(list);
+        ListFirst(list);
+        list->first = NULL;
+        list->last = NULL;
+        void* item = list->current->item;
+        freeNode(list->current);
+        list->current = NULL;
+        list->itemCount--;
+        return item;
     }
 
     NODE* nodeToBeRemoved = list->last;
@@ -405,7 +411,7 @@ void* ListSearch(LIST* list, int (*comparator)(void*, void*), void* comparisonAr
         return NULL;
     }
 
-    int found = comparator(ListCurr,comparisonArg);
+    int found = comparator(ListCurr(list),comparisonArg);
     while(!found){
         void* item = ListNext(list);
         if(item == NULL){

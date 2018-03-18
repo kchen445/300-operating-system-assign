@@ -4,8 +4,13 @@
 
 #ifndef INC_300ASSIGNMENT3_SEMAPHORE_H
 #define INC_300ASSIGNMENT3_SEMAPHORE_H
+
+#include "list.h"
+#include <stdbool.h>
+
 typedef struct SEMAPHORE{
-    int id;
     int value;
+    bool initialized;
+    LIST* listOfWaitingProcesses;
 } SEMAPHORE;
 #endif //INC_300ASSIGNMENT3_SEMAPHORE_H
